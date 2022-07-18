@@ -192,7 +192,7 @@ var (
 	}
 	TextRaw = SigFormat{
 		accounts.MimetypeTextRaw,
-		0x45,
+		0x55,
 	}
 )
 
