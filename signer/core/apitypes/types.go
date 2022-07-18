@@ -190,6 +190,10 @@ var (
 		accounts.MimetypeTextPlain,
 		0x45,
 	}
+	TextRaw = SigFormat{
+		accounts.MimetypeTextRaw,
+		0x45,
+	}
 )
 
 type ValidatorData struct {

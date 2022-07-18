@@ -40,6 +40,7 @@ const (
 	MimetypeTypedData         = "data/typed"
 	MimetypeClique            = "application/x-clique-header"
 	MimetypeTextPlain         = "text/plain"
+	MimetypeTextRaw           = "text/raw"
 )
 
 // Wallet represents a software or hardware wallet that might contain one or more
@@ -194,6 +195,20 @@ func TextHash(data []byte) []byte {
 // This gives context to the signed message and prevents signing of transactions.
 func TextAndHash(data []byte) ([]byte, string) {
 	msg := fmt.Sprintf("\x19Ethereum Signed Message:\n%d%s", len(data), string(data))
+	hasher := sha3.NewLegacyKeccak256()
+	hasher.Write([]byte(msg))
+	return hasher.Sum(nil), msg
+}
+
+// TextAndHashRaw is a helper function that calculates a hash for the given message that can be
+// safely used to calculate a signature from.
+//
+// The hash is calculated as
+//   keccak256(message).
+//
+// This gives context to the signed message and prevents signing of transactions.
+func TextAndHashRaw(data []byte) ([]byte, string) {
+	msg := string(data)
 	hasher := sha3.NewLegacyKeccak256()
 	hasher.Write([]byte(msg))
 	return hasher.Sum(nil), msg

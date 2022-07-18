@@ -167,6 +167,27 @@ func (api *SignerAPI) determineSignatureFormat(ctx context.Context, contentType 
 		// Clique uses V on the form 0 or 1
 		useEthereumV = false
 		req = &SignDataRequest{ContentType: mediaType, Rawdata: cliqueRlp, Messages: messages, Hash: sighash}
+	case apitypes.TextRaw.Mime: // also case TextPlain.Mime:
+		// Calculates an Ethereum ECDSA signature for:
+		// hash = keccak256(message)
+		// We expect it to be a string
+		if stringData, ok := data.(string); !ok {
+			return nil, useEthereumV, fmt.Errorf("input for text/plain must be an hex-encoded string")
+		} else {
+			if textData, err := hexutil.Decode(stringData); err != nil {
+				return nil, useEthereumV, err
+			} else {
+				sighash, msg := accounts.TextAndHashRaw(textData)
+				messages := []*apitypes.NameValueType{
+					{
+						Name:  "message",
+						Typ:   accounts.MimetypeTextPlain,
+						Value: msg,
+					},
+				}
+				req = &SignDataRequest{ContentType: mediaType, Rawdata: []byte(msg), Messages: messages, Hash: sighash}
+			}
+		}
 	default: // also case TextPlain.Mime:
 		// Calculates an Ethereum ECDSA signature for:
 		// hash = keccak256("\x19Ethereum Signed Message:\n${message length}${message}")
